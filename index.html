@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@200;300;400&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #05050a;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar to match the mood */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05050a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e1b4b;
+            border-radius: 3px;
+        }
+
+        /* --- Landing Page Section --- */
+        .landing-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            /* Mood background image */
+            background-image: url('hero.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Dark, deep purple/blue vignette overlaying the image */
+        .landing-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(15, 10, 30, 0.4) 0%, rgba(5, 5, 10, 0.95) 90%);
+            z-index: 1;
+        }
+
+        .landing-content {
+            position: relative;
+            z-index: 2;
+            padding: 0 20px;
+        }
+
+        .landing-content h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            font-weight: 400;
+            letter-spacing: 4px;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .landing-content p {
+            font-size: 1rem;
+            font-weight: 200;
+            letter-spacing: 6px;
+            color: #a78bfa;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            z-index: 2;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #6366f1;
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; transform: translateY(0); }
+            50% { opacity: 0.9; transform: translateY(6px); }
+        }
+
+        /* --- Story Layout --- */
+        .story-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 100px 20px;
+        }
+
+        .story-section {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        /* --- Smooth Scroll Transitions --- */
+        .fade-text {
+            opacity: 0;
+            transform: translateY(30px);
+            filter: blur(4px);
+            transition: opacity 1.4s cubic-bezier(0.215, 0.610, 0.355, 1), 
+                        transform 1.4s cubic-bezier(0.215, 0.610, 0.355, 1),
+                        filter 1.2s ease;
+            font-size: 1.25rem;
+            font-weight: 300;
+            line-height: 2;
+            color: #cbd5e1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Subtle styling variation for emphasis lines */
+        .fade-text.accent-line {
+            font-family: 'Cinzel', serif;
+            color: #c084fc;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .fade-text.active {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Landing Page -->
+    <main class="landing-section">
+        <div class="landing-content">
+            <h1></h1>
+            <p>A collection of thoughts left unsaid</p>
+        </div>
+        <div class="scroll-indicator">Scroll to begin</div>
+    </main>
+
+    <!-- Narrative Story Mode -->
+    <div class="story-container">
+        
+        <section class="story-section">
+            <p class="fade-text">
+               Hey it's me Amarjith... Peru kond ariyuvaan chance kuravaan... Enthayalum college il padikkunna time evide enkilum okke vach kandittulla parichayam undenn viswasikkunnu... Ith oru essay model aayitt thonnaam... But college padikkunna time thott ezhuthanam enn karuthiyath aan... Pakshe due to some reasons ezhuthiyillaa... Reason Ithil thanne pinneed paryaam... Ithil parayunna kaaryangal ethratholam thanikk accept aakkaan pattum enn enikk ariyilla... Pakshe ith paranje pattu enn thonniyath kond parayunnu... 
+<br><br>
+
+Appo ith oru cheriya kadha parayunnath pola paranj pokaam...
+<br><br>
+First year, thante classum ente classum thammil aake 2 class nte distance mathrame undayrunn ullu... But ann onnum thaan ente sradhayil pettittilla 😌🥱 Pakshe enganeyo thanikku njan insta il request ittinu... Athu kandu parichayamullath kond alla... College il vanneppad clgle kure perkk request idunnathinidayil ittath aan... Pinne thante accountil post oo mattu kaaryam onnumillaathath kond thanne athra ariyillaayrunnu.. Second year il aan thaan ente sradhayil pettath... Oru aale aadhyam kaanumbo thanne namk aa aalude oru swabhaavam manasilaakum... May be ath correct aakanam enn illaa... Pakshe boys nte one of the major talent aan ingane ulla kaaryangalil avarkk dedication kurach kooduthal aayrikkum...😌 As a boy Enikkum ath ichiri kooduthal aayrunnu... Clgil vann aadhyam aayittu crush adicha oru aal.. aa aalude swabhaavam engne aan enn ariyaanulla aa oru curiosity il Njan kure okke thanne nireekshichu 😌 from that I have concluded that you're an introvert 😌 ath athra crct aayitt ulla definition allaa😌 ennaalum erekkure suitable aayittulla oru definition... Appo angne thanne patti anweshich thannod look kond mathram alla character kondum oru crush thonni... Pinne thannod engne enkilm company aakanam enn aayrunnu 😌 but ente oru swabhaavam vach njan angane pettann aarodum company aakarillaa.. Angne thannod engane enkilum onnu mindanam enn aagrahikkunna aa time il aan etho oru situation kittiyappol thannod vannu samsarichath😌 crct aayittu paranjaal namk 4th sem stati exam aaya day😌😂 Pinne kaaryam aayi onnum nadannilla... Athinellaam shesham aan thante insta story kk okke like adikkaan thudangiyath...😌 First story I have liked is thante oru green dress💚 il oru orange shade light aayitt ulla oru story il aan😌 In  traditional look, you look so beautiful 😌 athukond aan ann like ittath😌 pinneed angott thaaan idunna oro story kkum like cheyyal aayi.. athu veruthe enn parayunnillaa... Venamengil attention seeking nu vendi aanenn parayaam😌😂 Pinne thaanumaayi company aakan ulla avasaram nokki nadakkal aayrunnu... Appozhaanu thaan chithram varaykkunna kaaryam arinjath😌 Aa samayathu aan jais nte magazine pani nadakkunnath... As a suggestion article ilekk ulla drawings varakkaan Njan paranjaayirunnu 😌 Vere onninum allaa thannod athuvazhi oru company aakkaam enna udhesham kond aan😌 aa samayathu okke thanne propose cheythaalo enn aalojichath aan😌 pakshe ann just oru infatuation aanenn karuthi vittu...Pinne palappozhaayi thanne kaanumbo nokkaarund enn ullath sathyam aan... Ath orikkalum thannod aa oru reethiyil ulla ishtam kond allaa... Enikk thante character entho athrakkum istamaanu... Aa samayathum enikk thannod Company aakanam enn und.. aa sremam njan upekshichitt illaayirunnu... Angane aan 5th sem exam nte time il thannod oru divasam samsaarikkaan sremichathum ellaam..😌 pinne ellaa divasavum canteen il vann irikkaan thudangi... Major reason third year aayi, college kazhiyaan aayath kond ellaavarodum time spend cheyyaan ulla avasaram aayrunnu.. pinne thanne kaanaam enn ullathum oru reason aan...Pinne eppozho enganeyo ente class il enikk thannod crush ulla kaaryam arinju.. Angne thante peril kurach okke kaliyaakkalukal kelkkendi vannu😌 but ath okkeyum ente baaghath nn ulla mistake aan😌
+<br><br>
+
+Ith ippol ayakkaan kaaranam erekkure 1 year kazhinju college kazhinjitt... But entho thannod ulla aa oru ishtam kurayunnillaa...Pinne thannod ith parayaathe thanne nashtapeduthaan thonnunn illa.... So ee oru ishtam thannod parayanam enn thonni... I Love you...❤️ Ith paranj orikkalum thanne budhimuttikkanam enn undayrunnilla... College padikkunna time Athukond aan thannod parayaathirunnathum... Thanne kaanaathirunnaal aa ishtam pokum enn karuthi... But this is more than infatuation... Orikkalum oru timepass relationship ilekk thanne Njan nirbandhikkilla... With parents support, oru healthy relationship aayitt nokkaan aan enikk ishtam... So ippo oru yes parayanam enn Njan parayilla... After I got settled, oru proposal aayitt veettil vannaal thaan ok aano enn arinjaal mathy.....
+
+            </p>
+        </section>
+    </div>
+
+    <script>
+        // Reveal text smoothly on scroll using IntersectionObserver
+        const textElements = document.querySelectorAll('.fade-text');
+
+        const observerOptions = {
+            root: null,
+            threshold: 0.25, // Triggers when a quarter of the text block enters the screen
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const textObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        textElements.forEach(el => textObserver.observe(el));
+    </script>
+</body>
+</html>
