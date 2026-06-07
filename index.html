@@ -154,6 +154,62 @@ body {
   color: var(--pk2);
   font-weight: 500;
 }
+/* === SCHEDULE HEADER === */
+.schedule-header {
+  margin-bottom: 32px;
+  padding: 28px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(139,43,226,0.1) inset,
+    0 0 60px rgba(139,43,226,0.15),
+    0 20px 60px rgba(0,0,0,0.5);
+}
+
+.schedule-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 38px;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #e9d5ff, #c084fc, #f000b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.schedule-box {
+  display: grid;
+  gap: 18px;
+}
+
+.schedule-section {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(13,0,40,0.6);
+  border: 1px solid rgba(139,43,226,0.25);
+  transition: 0.25s;
+}
+
+.schedule-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(139,43,226,0.2);
+}
+
+.section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--p2);
+  margin-bottom: 6px;
+}
+
+.section-item {
+  font-size: 14px;
+  color: var(--p4);
+  margin-left: 6px;
+  margin-bottom: 4px;
+}
 
 .btn-reset {
   background: transparent;
@@ -615,20 +671,35 @@ input[type=checkbox].nt-cb:active { transform: scale(0.95); }
 <div class="page">
 
   <!-- HEADER -->
-  <header class="header">
-    <div class="header-left">
-      <div class="header-eyebrow">⚡ Accountability System v1.0</div>
-      <div class="header-title">Discipline Tracker</div>
-      <div class="header-sub">June 8 – June 30, 2026 &nbsp;·&nbsp; <span id="days-left">-- days remaining</span></div>
+  <header class="schedule-header">
+
+  <div class="schedule-title">
+    SCHEDULE
+  </div>
+
+  <div class="schedule-box">
+
+    <div class="schedule-section">
+      <div class="section-item">6:30 – 9:30 → DSA</div>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;">
-      <button class="btn-reset" onclick="resetAll()">↺ Reset Data</button>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-align:right;line-height:1.6;">
-        <div id="today-score-label" style="color:var(--p3);">Today: loading...</div>
-        <div id="overall-pct" style="color:var(--muted);">Overall: 0%</div>
-      </div>
+
+    <div class="schedule-section">
+      <div class="section-item">10:30 – 12:30 → NET (New Topic)</div>
+      <div class="section-item">2:30 – 5:30 → NET (Revision + PYQ)</div>
     </div>
-  </header>
+
+    <div class="schedule-section">
+      <div class="section-item">6:00 – 7:00 → English</div>
+    </div>
+
+    <div class="schedule-section">
+      <div class="section-item">8:00 – 9:00 → NQT</div>
+      <div class="section-item">9:30 – 11:00 → Project</div>
+    </div>
+
+  </div>
+
+</header>
 
   <!-- STATS -->
   <section class="stats-grid">
