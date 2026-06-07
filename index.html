@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discipline Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #04000d;
+  --bg2: #07001a;
+  --bg3: #0d0028;
+  --p1: #8b2be2;
+  --p2: #a855f7;
+  --p3: #c084fc;
+  --p4: #e9d5ff;
+  --pk: #f000b8;
+  --pk2: #f472b6;
+  --glow1: rgba(139,43,226,0.6);
+  --glow2: rgba(168,85,247,0.4);
+  --glass: rgba(13,0,40,0.7);
+  --border: rgba(139,43,226,0.25);
+  --border2: rgba(168,85,247,0.5);
+  --text: #e9d5ff;
+  --muted: #7c3aed;
+  --muted2: #9b60c0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* === ANIMATED BG === */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: drift 12s ease-in-out infinite alternate;
+}
+.orb1 { width: 500px; height: 500px; background: #5b0faf; top: -120px; left: -100px; animation-duration: 14s; }
+.orb2 { width: 400px; height: 400px; background: #8b2be2; top: 30%; right: -80px; animation-duration: 10s; animation-delay: -4s; }
+.orb3 { width: 300px; height: 300px; background: #c026d3; bottom: -60px; left: 30%; animation-duration: 16s; animation-delay: -7s; }
+.orb4 { width: 200px; height: 200px; background: #7c3aed; bottom: 20%; right: 20%; animation-duration: 8s; animation-delay: -2s; opacity: 0.2; }
+
+@keyframes drift {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(40px, 30px) scale(1.1); }
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(139,43,226,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139,43,226,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* === LAYOUT === */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+/* === HEADER === */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+  padding: 28px 32px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(139,43,226,0.1) inset,
+    0 0 60px rgba(139,43,226,0.1),
+    0 20px 60px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--p2), var(--pk), var(--p2), transparent);
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.header-left {}
+
+.header-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--p2);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+
+.header-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  line-height: 0.9;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 35%, #f000b8 70%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(192,132,252,0.5));
+}
+
+.header-sub {
+  font-size: 12px;
+  color: var(--muted2);
+  margin-top: 8px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+.header-sub span {
+  color: var(--pk2);
+  font-weight: 500;
+}
+
+.btn-reset {
+  background: transparent;
+  border: 1px solid rgba(240,0,184,0.3);
+  color: var(--pk2);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-reset::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(240,0,184,0.08);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.btn-reset:hover {
+  border-color: rgba(240,0,184,0.7);
+  color: #ffb3f0;
+  box-shadow: 0 0 20px rgba(240,0,184,0.2);
+}
+.btn-reset:hover::before { opacity: 1; }
+
+/* === STATS === */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(139,43,226,0.2);
+  border-color: var(--border2);
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: 0 0 16px 16px;
+}
+.stat-card:nth-child(1)::after { background: linear-gradient(90deg, var(--p1), var(--p2)); }
+.stat-card:nth-child(2)::after { background: linear-gradient(90deg, var(--pk), var(--pk2)); }
+.stat-card:nth-child(3)::after { background: linear-gradient(90deg, #5b21b6, #7c3aed); }
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.stat-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.stat-icon.purple { background: rgba(139,43,226,0.2); color: var(--p3); border: 1px solid rgba(139,43,226,0.3); }
+.stat-icon.pink   { background: rgba(240,0,184,0.15); color: var(--pk2); border: 1px solid rgba(240,0,184,0.25); }
+.stat-icon.indigo { background: rgba(99,60,170,0.2); color: #a78bfa; border: 1px solid rgba(99,60,170,0.3); }
+
+.stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  line-height: 1;
+  color: #f3e8ff;
+  letter-spacing: 1px;
+}
+
+.stat-value.text-sm {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--pk2);
+  letter-spacing: 0;
+}
+
+/* === STREAK BANNER === */
+.streak-banner {
+  background: linear-gradient(135deg, rgba(139,43,226,0.15), rgba(240,0,184,0.1));
+  border: 1px solid rgba(139,43,226,0.3);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--p3);
+  backdrop-filter: blur(10px);
+}
+
+.streak-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--pk);
+  box-shadow: 0 0 10px var(--pk);
+  animation: pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* === TABLE === */
+.table-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+.table-wrap {
+  background: rgba(7,0,26,0.8);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(139,43,226,0.08) inset,
+    0 0 80px rgba(80,0,180,0.15),
+    0 40px 80px rgba(0,0,0,0.5);
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.table-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--p2) 30%, var(--pk) 60%, transparent 100%);
+  opacity: 0.6;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.table-scroll::-webkit-scrollbar { height: 4px; }
+.table-scroll::-webkit-scrollbar-track { background: #04000d; }
+.table-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, var(--p1), var(--pk));
+  border-radius: 99px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  background: rgba(20, 0, 50, 0.9);
+  padding: 12px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(139,43,226,0.15);
+  font-weight: 400;
+}
+
+thead th.col-habit {
+  text-align: left;
+  padding-left: 20px;
+  min-width: 150px;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: rgba(10,0,30,0.98);
+  border-right: 1px solid rgba(139,43,226,0.15);
+  color: var(--p3);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+tbody tr {
+  border-bottom: 1px solid rgba(139,43,226,0.07);
+  transition: background 0.15s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(139,43,226,0.05); }
+
+tbody td {
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+tbody td.col-habit {
+  text-align: left;
+  padding-left: 20px;
+  padding-right: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--p4);
+  white-space: nowrap;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: rgba(7,0,20,0.97);
+  border-right: 1px solid rgba(139,43,226,0.12);
+  letter-spacing: 0.2px;
+}
+
+td.checked-cell {
+  background: rgba(139,43,226,0.07);
+}
+
+/* === CHECKBOX === */
+.cb-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input[type=checkbox].nt-cb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid rgba(139,43,226,0.35);
+  border-radius: 6px;
+  background: rgba(4,0,13,0.8);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  flex-shrink: 0;
+}
+
+input[type=checkbox].nt-cb:hover {
+  border-color: var(--p2);
+  background: rgba(139,43,226,0.15);
+  transform: scale(1.1);
+}
+
+input[type=checkbox].nt-cb:checked {
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  border-color: var(--p2);
+  box-shadow:
+    0 0 0 3px rgba(168,85,247,0.15),
+    0 0 12px rgba(168,85,247,0.5),
+    0 0 24px rgba(168,85,247,0.2);
+  transform: scale(1.05);
+}
+
+input[type=checkbox].nt-cb:checked::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+  position: absolute;
+  top: 2px; left: 5px;
+}
+
+input[type=checkbox].nt-cb:active { transform: scale(0.95); }
+
+/* === CHART === */
+.chart-wrap {
+  background: rgba(7,0,26,0.8);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(139,43,226,0.08) inset,
+    0 0 80px rgba(80,0,180,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #7c3aed 40%, var(--pk) 70%, transparent 100%);
+  opacity: 0.5;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--p3);
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted2);
+  letter-spacing: 0.5px;
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+/* === PROGRESS BARS === */
+.daily-bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bar-track {
+  width: 100%;
+  height: 60px;
+  background: rgba(139,43,226,0.1);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(139,43,226,0.15);
+}
+
+.bar-fill {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, var(--pk), var(--p1));
+  transition: height 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  border-radius: 3px;
+}
+
+.bar-fill.full {
+  background: linear-gradient(180deg, #ff80ea, var(--pk), var(--p1));
+  box-shadow: 0 0 10px rgba(240,0,184,0.5);
+}
+
+.bar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  color: var(--muted);
+  letter-spacing: 0;
+  text-align: center;
+}
+
+/* === FOOTER === */
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: rgba(124,58,237,0.4);
+  letter-spacing: 2px;
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page > * {
+  animation: fadeUp 0.5s ease both;
+}
+.page > *:nth-child(1) { animation-delay: 0.05s; }
+.page > *:nth-child(2) { animation-delay: 0.12s; }
+.page > *:nth-child(3) { animation-delay: 0.18s; }
+.page > *:nth-child(4) { animation-delay: 0.22s; }
+.page > *:nth-child(5) { animation-delay: 0.28s; }
+.page > *:nth-child(6) { animation-delay: 0.33s; }
+.page > *:nth-child(7) { animation-delay: 0.38s; }
+
+/* Checkbox pop animation */
+@keyframes cbPop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.cb-pop { animation: cbPop 0.25s ease; }
+</style>
+</head>
+
+<body>
+
+<!-- Animated background -->
+<div class="bg-layer">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+</div>
+<div class="grid-overlay"></div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">⚡ Accountability System v1.0</div>
+      <div class="header-title">Discipline Tracker</div>
+      <div class="header-sub">June 8 – June 30, 2026 &nbsp;·&nbsp; <span id="days-left">-- days remaining</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;">
+      <button class="btn-reset" onclick="resetAll()">↺ Reset Data</button>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-align:right;line-height:1.6;">
+        <div id="today-score-label" style="color:var(--p3);">Today: loading...</div>
+        <div id="overall-pct" style="color:var(--muted);">Overall: 0%</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-label">Total Check-ins</div>
+        <div class="stat-icon purple">⚡</div>
+      </div>
+      <div class="stat-value" id="stat-total">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-label">Best Day</div>
+        <div class="stat-icon pink">★</div>
+      </div>
+      <div class="stat-value text-sm" id="stat-best">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-label">Habits Tracked</div>
+        <div class="stat-icon indigo">◎</div>
+      </div>
+      <div class="stat-value" id="stat-count">8</div>
+    </div>
+  </section>
+
+  <!-- STREAK BANNER -->
+  <div class="streak-banner">
+    <div class="streak-dot"></div>
+    <span id="streak-text" style="letter-spacing:1px;">System active — start checking in your habits below.</span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section-label">// Habit Matrix</div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr id="thead-row"></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-wrap">
+    <div class="chart-header">
+      <div class="chart-title">Progress Over Time</div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:linear-gradient(var(--pk),var(--p2));"></div>
+          <span>Daily Score</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:rgba(168,85,247,0.3);"></div>
+          <span>Max Possible</span>
+        </div>
+      </div>
+    </div>
+    <div style="height:220px;position:relative;">
+      <canvas id="main-chart"></canvas>
+    </div>
+
+    <!-- Mini bars -->
+    <div class="table-section-label" style="margin-top:24px;margin-bottom:8px;">// Daily Completion Bars</div>
+    <div class="daily-bars" id="daily-bars"></div>
+  </div>
+
+  <div class="footer">// discipline.tracker &nbsp;·&nbsp; built different</div>
+
+</div><!-- /page -->
+
+<script>
+const HABITS = [
+  "Wake up at 6:30",
+  "Drink Water",
+  "DSA Practice",
+  "Project Work",
+  "UGC NET",
+  "TCS NQT",
+  "Communication",
+  "Discipline"
+];
+
+const START = 8, END = 30;
+const DATES = Array.from({length: END - START + 1}, (_, i) => {
+  const d = START + i;
+  return { label: `Jun ${d}`, short: `${d}` };
+});
+
+const KEY = 'disciplineTracker_June2026_v3';
+let DATA = {};
+try { DATA = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { DATA = {}; }
+
+let chartInst = null;
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(DATA)); } catch(e) {}
+}
+
+function getScore(label) {
+  if (!DATA[label]) return 0;
+  return HABITS.filter(h => DATA[label][h]).length;
+}
+
+/* ---- DAYS REMAINING ---- */
+function updateMeta() {
+  const now = new Date();
+  const end = new Date(2026, 5, 30);
+  const diff = Math.ceil((end - now) / 86400000);
+  document.getElementById('days-left').textContent =
+    diff > 0 ? `${diff} days remaining` : 'Challenge complete!';
+
+  const todayLabel = `Jun ${now.getDate()}`;
+  const todayScore = getScore(todayLabel);
+  const todayInRange = DATES.find(d => d.label === todayLabel);
+  if (todayInRange) {
+    document.getElementById('today-score-label').textContent =
+      `Today: ${todayScore}/${HABITS.length} habits`;
+  }
+
+  const totalPossible = DATES.length * HABITS.length;
+  const totalDone = DATES.reduce((acc, d) => acc + getScore(d.label), 0);
+  const pct = totalPossible > 0 ? Math.round((totalDone / totalPossible) * 100) : 0;
+  document.getElementById('overall-pct').textContent = `Overall: ${pct}%`;
+}
+
+/* ---- TABLE ---- */
+function buildTable() {
+  const thead = document.getElementById('thead-row');
+  thead.innerHTML = `<th class="col-habit">// Habit</th>` +
+    DATES.map(d => `<th>${d.short}</th>`).join('');
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  HABITS.forEach(habit => {
+    const tr = document.createElement('tr');
+
+    const tdH = document.createElement('td');
+    tdH.className = 'col-habit';
+    tdH.textContent = habit;
+    tr.appendChild(tdH);
+
+    DATES.forEach(d => {
+      const td = document.createElement('td');
+      const checked = DATA[d.label]?.[habit] || false;
+      if (checked) td.className = 'checked-cell';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'cb-wrap';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'nt-cb';
+      cb.checked = checked;
+
+      cb.addEventListener('change', () => {
+        if (!DATA[d.label]) DATA[d.label] = {};
+        DATA[d.label][habit] = cb.checked;
+        td.className = cb.checked ? 'checked-cell' : '';
+        cb.classList.add('cb-pop');
+        cb.addEventListener('animationend', () => cb.classList.remove('cb-pop'), { once: true });
+        save();
+        updateStats();
+        updateChart();
+        updateBars();
+        updateMeta();
+      });
+
+      wrap.appendChild(cb);
+      td.appendChild(wrap);
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+/*
