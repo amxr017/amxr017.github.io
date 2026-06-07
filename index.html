@@ -809,4 +809,183 @@ function buildTable() {
   });
 }
 
-/*
+/* ---- STATS ---- */
+function updateStats() {
+  const scores = DATES.map(d => getScore(d.label));
+  const total = scores.reduce((a, b) => a + b, 0);
+  document.getElementById('stat-total').textContent = total;
+
+  const max = Math.max(...scores);
+  if (max > 0) {
+    const idx = scores.indexOf(max);
+    document.getElementById('stat-best').textContent =
+      `${DATES[idx].label}\n${max}/${HABITS.length} habits`;
+  } else {
+    document.getElementById('stat-best').textContent = '—';
+  }
+
+  // Streak banner
+  let streak = 0;
+  const today = new Date();
+  for (let i = DATES.length - 1; i >= 0; i--) {
+    const s = getScore(DATES[i].label);
+    if (s > 0) streak++;
+    else break;
+  }
+  const banner = document.getElementById('streak-text');
+  if (total === 0) {
+    banner.textContent = 'System active — start checking in your habits below.';
+  } else if (streak >= 7) {
+    banner.textContent = `🔥 ${streak}-day streak — you are unstoppable. Keep the fire alive.`;
+  } else if (streak > 0) {
+    banner.textContent = `${streak}-day active streak — ${7 - streak} more days to hit a 7-day run.`;
+  } else {
+    banner.textContent = `You've completed ${total} check-ins total. Don't break the chain!`;
+  }
+}
+
+/* ---- CHART ---- */
+function updateChart() {
+  const scores = DATES.map(d => getScore(d.label));
+  const labels = DATES.map(d => d.short);
+
+  if (chartInst) {
+    chartInst.data.datasets[0].data = scores;
+    chartInst.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('main-chart').getContext('2d');
+
+  const grad = ctx.createLinearGradient(0, 0, 0, 220);
+  grad.addColorStop(0, 'rgba(240,0,184,0.35)');
+  grad.addColorStop(0.5, 'rgba(139,43,226,0.2)');
+  grad.addColorStop(1, 'rgba(139,43,226,0)');
+
+  chartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          data: scores,
+          borderColor: '#f000b8',
+          borderWidth: 2.5,
+          backgroundColor: grad,
+          fill: true,
+          tension: 0.45,
+          pointBackgroundColor: '#04000d',
+          pointBorderColor: '#f472b6',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: '#f000b8',
+          pointHoverBorderColor: '#fff',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(7,0,26,0.95)',
+          borderColor: 'rgba(139,43,226,0.5)',
+          borderWidth: 1,
+          titleColor: '#c084fc',
+          titleFont: { family: 'DM Mono', size: 11 },
+          bodyColor: '#9b60c0',
+          bodyFont: { family: 'DM Mono', size: 11 },
+          padding: 12,
+          callbacks: {
+            title: items => `Jun ${items[0].label}`,
+            label: ctx => ` ${ctx.parsed.y} / ${HABITS.length} habits completed`
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: HABITS.length,
+          grid: { color: 'rgba(139,43,226,0.08)', drawBorder: false },
+          ticks: {
+            color: '#5b21b6',
+            font: { family: 'DM Mono', size: 10 },
+            stepSize: 2,
+            callback: v => v
+          },
+          border: { display: false }
+        },
+        x: {
+          grid: { color: 'rgba(139,43,226,0.05)', drawBorder: false },
+          ticks: {
+            color: '#5b21b6',
+            font: { family: 'DM Mono', size: 9 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 12
+          },
+          border: { display: false }
+        }
+      }
+    }
+  });
+}
+
+/* ---- MINI BARS ---- */
+function updateBars() {
+  const container = document.getElementById('daily-bars');
+  container.innerHTML = '';
+
+  DATES.forEach(d => {
+    const score = getScore(d.label);
+    const pct = HABITS.length > 0 ? (score / HABITS.length) * 100 : 0;
+
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+
+    const track = document.createElement('div');
+    track.className = 'bar-track';
+    track.title = `${d.label}: ${score}/${HABITS.length}`;
+
+    const fill = document.createElement('div');
+    fill.className = 'bar-fill' + (pct === 100 ? ' full' : '');
+    fill.style.height = pct + '%';
+
+    track.appendChild(fill);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = d.short;
+
+    col.appendChild(track);
+    col.appendChild(lbl);
+    container.appendChild(col);
+  });
+}
+
+/* ---- RESET ---- */
+function resetAll() {
+  if (confirm('Reset all tracking data? This cannot be undone.')) {
+    DATA = {};
+    save();
+    buildTable();
+    updateStats();
+    updateChart();
+    updateBars();
+    updateMeta();
+  }
+}
+
+/* ---- INIT ---- */
+buildTable();
+updateStats();
+updateChart();
+updateBars();
+updateMeta();
+</script>
+
+</body>
+</html>
